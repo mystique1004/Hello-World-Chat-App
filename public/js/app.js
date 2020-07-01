@@ -2081,14 +2081,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -2100,7 +2092,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   },
   data: function data() {
     return {
-      usernname: "",
+      username: "",
       avatar: "",
       uid: "",
       sendingMessage: false,
@@ -2110,19 +2102,45 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       loadingMessages: false
     };
   },
+  mounted: function mounted() {
+    this.messageSent();
+  },
   created: function created() {
     this.getLoggedInUser();
   },
   methods: {
-    getLoggedInUser: function getLoggedInUser() {
+    scrollToBottom: function scrollToBottom() {
+      var objDiv = document.getElementById("msg-page");
+      objDiv.scrollTop = objDiv.scrollHeight;
+    },
+    messageSent: function messageSent() {
       var _this = this;
 
-      _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].getLoggedInUser().then(function (user) {
-        _this.usernname = user.name;
-        _this.avatar = user.avatar;
-        _this.uid = user.uid;
+      this.loadingMessages = true;
+      var listenerID = "20617324ff1b1c0";
+      var messagesRequest = new _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].MessagesRequestBuilder().setLimit(100).build();
+      messagesRequest.fetchPrevious().then(function (messages) {
+        console.log("Message list fetched:", messages);
+        console.log("this.groupMessages", _this.groupMessages);
+        _this.groupMessages = [].concat(_toConsumableArray(_this.groupMessages), _toConsumableArray(messages));
+        _this.loadingMessages = false;
+
+        _this.$nextTick(function () {
+          _this.scrollToBottom();
+        });
       }, function (error) {
-        _this.$router.push({
+        console.log("Message fetching failed with error:", error);
+      });
+    },
+    getLoggedInUser: function getLoggedInUser() {
+      var _this2 = this;
+
+      _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].getLoggedinUser().then(function (user) {
+        _this2.usernname = user.name;
+        _this2.avatar = user.avatar;
+        _this2.uid = user.uid;
+      }, function (error) {
+        _this2.$router.push({
           name: "homepage"
         });
 
@@ -2130,45 +2148,33 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       });
     },
     sendGroupMessage: function sendGroupMessage() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.sendingMessage = true;
-      var receiverID = "supergroup";
+      var receiverID = 'supergroup';
       var messageText = this.chatMessage;
-      var receiverType = _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].RECEIVER_TYPE.GROUP;
+      var receiverType = 'group';
       var textMessage = new _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].TextMessage(receiverID, messageText, receiverType);
       _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].sendMessage(textMessage).then(function (message) {
         console.log("Message sent successfully:", message);
-        _this2.chatMessage = "";
-        _this2.sendingMessage = false;
+        _this3.chatMessage = "";
+        _this3.sendingMessage = false;
 
-        _this2.$nextTick(function () {
-          _this2.scrollToBottom();
+        _this3.$nextTick(function () {
+          _this3.messageSent(); // this.messageSent = document.getElementById("msg-page");
+          // this.messageSent.scrollTop = messageSent.scrollHeight;
+
+
+          _this3.scrollToBottom();
         });
       }, function (error) {
         console.log("Message sending failed with error:", error);
       });
     }
-  },
-  mounted: function mounted() {
-    var _this3 = this;
+  } // mounted() {
+  //     this.messageSent();
+  // }
 
-    this.loadingMessages = true;
-    var listenerID = "20617324ff1b1c0";
-    var messagesRequest = new _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].MessagesRequestBuilder().setLimit(100).build();
-    messagesRequest.fetchPrevious().then(function (messages) {
-      console.log("Message list fetched:", messages);
-      console.log("this.groupMessages", _this3.groupMessages);
-      _this3.groupMessages = [].concat(_toConsumableArray(_this3.groupMessages), _toConsumableArray(messages));
-      _this3.loadingMessages = false;
-
-      _this3.$$$nextTick(function () {
-        _this3.scrollToBottom();
-      });
-    }, function (error) {
-      console.log("Message fetching failed with error:", error);
-    });
-  }
 });
 
 /***/ }),
@@ -2238,7 +2244,7 @@ __webpack_require__.r(__webpack_exports__);
       };
 
       if (this.username && this.password) {
-        axios.post("http://localhost:8000/api/login", userData).then(function (response) {
+        axios.post("api/login", userData).then(function (response) {
           _this.logUserInToCometChat(response.data.token);
         })["catch"](function (error) {
           alert(error.response.data.message);
@@ -2383,11 +2389,11 @@ __webpack_require__.r(__webpack_exports__);
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              url = "https://api-eu.cometchat.io/v2.0/users";
+              url = "https://api-us.cometchat.io/v2.0/users";
               data = {
                 uid: username,
                 name: "".concat(username, " sample"),
-                avatar: 'https://data-eu.cometchat.io/assets/images/avatars/captainamerica.png'
+                avatar: 'https://data-us.cometchat.io/assets/images/avatars/captainamerica.png'
               };
               _context.prev = 2;
               _context.next = 5;
@@ -2514,7 +2520,7 @@ __webpack_require__.r(__webpack_exports__);
       }, null, null, [[2, 12]]);
     },
     sendTokenToServer: function sendTokenToServer(token, uid) {
-      axios.post("http://localhost:8000/api/update/token", {
+      axios.post("api/update/token", {
         token: token,
         uid: uid
       }).then(function (response) {
@@ -39632,8 +39638,221 @@ render._withStripped = true
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function () {}
-var staticRenderFns = []
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "booker" },
+    [
+      _c("nav-bar", { attrs: { name: _vm.username, avatar: _vm.avatar } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "chat" }, [
+        _c("div", { staticClass: "container" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("div", { staticClass: "chat-page" }, [
+            _c("div", { staticClass: "msg-inbox" }, [
+              _c("div", { staticClass: "chats", attrs: { id: "chats" } }, [
+                _c(
+                  "div",
+                  { staticClass: "msg-page", attrs: { id: "msg-page" } },
+                  [
+                    _vm.loadingMessages
+                      ? _c(
+                          "div",
+                          { staticClass: "loading-messages-container" },
+                          [
+                            _c("spinner", { attrs: { size: 100 } }),
+                            _vm._v(" "),
+                            _c("span", { staticClass: "loading-text" }, [
+                              _vm._v("     Loading Messages ")
+                            ])
+                          ],
+                          1
+                        )
+                      : !_vm.groupMessages.length
+                      ? _c(
+                          "div",
+                          { staticClass: "text-center img-fluid empty-chat" },
+                          [_vm._m(1), _vm._v(" "), _vm._m(2)]
+                        )
+                      : _c(
+                          "div",
+                          _vm._l(_vm.groupMessages, function(message) {
+                            return _c("div", { key: message.id }, [
+                              message.sender.uid !== _vm.uid
+                                ? _c("div", { staticClass: "received-chats" }, [
+                                    _c(
+                                      "div",
+                                      { staticClass: "received-chats-img" },
+                                      [
+                                        _c("img", {
+                                          staticClass: "avatar",
+                                          attrs: {
+                                            src: message.receiver.icon,
+                                            alt: ""
+                                          }
+                                        })
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "received-msg" }, [
+                                      _c(
+                                        "div",
+                                        { staticClass: "received-msg-inbox" },
+                                        [
+                                          _c("p", [
+                                            _c("span", [
+                                              _vm._v(
+                                                _vm._s(message.sender.name)
+                                              )
+                                            ]),
+                                            _c("br"),
+                                            _vm._v(_vm._s(message.message))
+                                          ])
+                                        ]
+                                      )
+                                    ])
+                                  ])
+                                : _c("div", { staticClass: "outgoing-chats" }, [
+                                    _c(
+                                      "div",
+                                      { staticClass: "outgoing-chats-msg" },
+                                      [
+                                        _c("p", [
+                                          _vm._v(
+                                            _vm._s(message.data.text) + " "
+                                          )
+                                        ])
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "div",
+                                      { staticClass: "outgoing-chats-img" },
+                                      [
+                                        _c("img", {
+                                          staticClass: "avatar",
+                                          attrs: {
+                                            src: message.sender.avatar,
+                                            alt: ""
+                                          }
+                                        })
+                                      ]
+                                    )
+                                  ])
+                            ])
+                          }),
+                          0
+                        )
+                  ]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "msg-bottom" }, [
+              _c(
+                "form",
+                {
+                  staticClass: "message-form",
+                  on: {
+                    submit: function($event) {
+                      $event.preventDefault()
+                      return _vm.sendGroupMessage($event)
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "div",
+                    { staticClass: "input-group" },
+                    [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.chatMessage,
+                            expression: "chatMessage"
+                          }
+                        ],
+                        staticClass: "form-control message-input",
+                        attrs: {
+                          type: "text",
+                          placeholder: "Type something",
+                          required: ""
+                        },
+                        domProps: { value: _vm.chatMessage },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.chatMessage = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.sendingMessage
+                        ? _c("spinner", {
+                            staticClass: "sending-message-spinner",
+                            attrs: { size: 30 }
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ]
+              )
+            ])
+          ])
+        ])
+      ])
+    ],
+    1
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "msg-header" }, [
+      _c("div", { staticClass: "active" }, [_c("h5", [_vm._v("#General")])])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "empty-chat-holder" }, [
+      _c("img", {
+        staticClass: "img-res",
+        attrs: {
+          src: __webpack_require__(/*! ./../assets/empty-state.svg */ "./resources/assets/empty-state.svg"),
+          alt: "empty chat image"
+        }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", [
+      _c("h2", [_vm._v(" No new message? ")]),
+      _vm._v(" "),
+      _c("h6", { staticClass: "empty-chat-sub-title" }, [
+        _vm._v(
+          "\n                                        Send your first message below.\n                                    "
+        )
+      ])
+    ])
+  }
+]
+render._withStripped = true
 
 
 
@@ -39918,19 +40137,12 @@ var render = function() {
                 })
               ]),
               _vm._v(" "),
-              _c(
-                "button",
-                {
-                  attrs: { type: "submit" },
-                  on: { click: _vm.registerAppUser }
-                },
-                [
-                  _vm._v("SIGN UP    "),
-                  _vm.showSpinner
-                    ? _c("span", { staticClass: "fa fa-spin fa-spinner" })
-                    : _vm._e()
-                ]
-              )
+              _c("button", { attrs: { type: "submit" } }, [
+                _vm._v("SIGN UP    "),
+                _vm.showSpinner
+                  ? _c("span", { staticClass: "fa fa-spin fa-spinner" })
+                  : _vm._e()
+              ])
             ]
           ),
           _vm._v(" "),
@@ -54999,6 +55211,17 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./resources/assets/empty-state.svg":
+/*!******************************************!*\
+  !*** ./resources/assets/empty-state.svg ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/empty-state.svg?e9ff8a50baf14d3141f1e6a6e670fb49";
+
+/***/ }),
+
 /***/ "./resources/assets/logo.svg":
 /*!***********************************!*\
   !*** ./resources/assets/logo.svg ***!
@@ -55342,7 +55565,7 @@ __webpack_require__.r(__webpack_exports__);
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]);
 /* harmony default export */ __webpack_exports__["default"] = (new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
-  mode: 'history',
+  // mode: 'history',
   routes: [{
     path: '/',
     name: 'homepage',

@@ -25,7 +25,7 @@
                             <label for="password_confirmation">Confirm Password</label>
                             <input type="password" name="password_confirmation" id="password_confirmation" v-model="password_confirmation" placeholder="Re-enter password" class="form-control" required>
                         </div>
-                        <button type="submit" @click="registerAppUser">SIGN UP &nbsp;&nbsp; <span v-if="showSpinner" class="fa fa-spin fa-spinner"></span> </button>
+                        <button type="submit">SIGN UP &nbsp;&nbsp; <span v-if="showSpinner" class="fa fa-spin fa-spinner"></span> </button>
                      </form> 
 
                      <div class="text-center m-t-50 link-reg">
@@ -76,11 +76,11 @@
             },
 
     async createUserOnCometChat(username) {
-    let url = `https://api-eu.cometchat.io/v2.0/users`;
+    let url = `https://api-us.cometchat.io/v2.0/users`;
     let data = {
         uid: username,
         name: `${username} sample`,
-        avatar: 'https://data-eu.cometchat.io/assets/images/avatars/captainamerica.png',
+        avatar: 'https://data-us.cometchat.io/assets/images/avatars/captainamerica.png',
     };
 
     try {
@@ -146,7 +146,7 @@
         },
 
         sendTokenToServer(token, uid) {
-            axios.post(`http://localhost:8000/api/update/token`, {token, uid})
+            axios.post(`api/update/token`, {token, uid})
                 .then(response => {
                     console.log("Token updated successfully", response);
                 }) .catch(error => {

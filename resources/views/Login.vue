@@ -51,7 +51,7 @@
                 };
 
                 if (this.username && this.password) {
-                    axios.post(`http://localhost:8000/api/login`, userData).then(response => {
+                    axios.post(`api/login`, userData).then(response => {
                         this.logUserInToCometChat(response.data.token)
                     }).catch(error => {
                         alert(error.response.data.message);

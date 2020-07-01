@@ -1,96 +1,88 @@
+
+
 <template>
     <div class="booker">
-        <nav-bar :name="this.username" avatar:="this.avatar" />
+        <nav-bar :name="username" :avatar="avatar" />
         <div class="chat">
             <div class="container">
                 <div class="msg-header">
                     <div class="active">
                         <h5>#General</h5>
-
                     </div>
-
                 </div>
 
                 <div class="chat-page">
                     <div class="msg-inbox">
-                        <div class="chats" id="c hats">
+                        <div class="chats" id="chats">
                             <div class="msg-page" id="msg-page">
-                                <div 
-                                v-if="loadingMessages"
-                                class="loading-messages-container">
 
-                                    <spinner: size="100"/>
-                                    <span class="loading-text"> Loading Messages </span>
+                                <div
+                                    v-if="loadingMessages"
+                                    class="loading-messages-container">
+                                
+                                    <spinner :size="100"/>
+                                    <span class="loading-text">     Loading Messages </span>
+                         
+                       
                                 </div>
-
-                                <div class="text-center img-fluid empty-chat" v-else-if="!groupMessages.length">
+                                <div class="text-center img-fluid empty-chat" v-else-if="!groupMessages.length" >
                                     <div class="empty-chat-holder">
-                                        <img src="../../assets/empty-state.svg" class="img-res" alt="empty chat image">
+                                        <img src="./../assets/empty-state.svg" class="img-res" alt="empty chat image">
                                     </div>
 
                                     <div>
-                                        <h2>No new message?</h2>
+                                        <h2> No new message? </h2>
                                         <h6 class="empty-chat-sub-title">
-                                            Send your first message.
+                                            Send your first message below.
                                         </h6>
                                     </div>
                                 </div>
-                                
-                                <div v-else> 
+
+                                <div v-else>
                                     <div v-for="message in groupMessages" v-bind:key="message.id">
                                         <div class="received-chats" v-if="message.sender.uid !== uid">
                                             <div class="received-chats-img">
-                                                <img v-bind:src="message.sender.avatar" alt="" class="avatar">
+                                                <img :src="message.receiver.icon" alt="" class="avatar">
                                             </div>
 
                                             <div class="received-msg">
                                                 <div class="received-msg-inbox">
-                                                    <p><span>{{message.sender.uid}}<br>{{message.data.text}}</span></p>
-
+                                                    <p><span>{{ message.sender.name }}</span><br>{{ message.message }}</p>
                                                 </div>
-
                                             </div>
                                         </div>
 
+
                                         <div class="outgoing-chats" v-else>
                                             <div class="outgoing-chats-msg">
-                                                <p>{{message.data.text}}</p>
+                                                <p>{{ message.data.text }} </p>
                                             </div>
 
                                             <div class="outgoing-chats-img">
                                                 <img v-bind:src="message.sender.avatar" alt="" class="avatar">
                                             </div>
-
                                         </div>
-
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
 
                     <div class="msg-bottom">
                         <form class="message-form" v-on:submit.prevent="sendGroupMessage">
                             <div class="input-group">
                                 <input type="text" class="form-control message-input" placeholder="Type something" v-model="chatMessage" required>
-                                <spinner 
+                                <spinner
                                     v-if="sendingMessage"
                                     class="sending-message-spinner"
                                     :size="30"
                                 />
-
                             </div>
                         </form>
-
                     </div>
-                </div>           
+                </div>
             </div>
-
         </div>
-
     </div>
 </template>
 
@@ -105,17 +97,20 @@ export default {
         NavBar,
         Spinner
     },
-    data() {
-        return {
-            usernname: "",
+    data: () => (
+         {
+            username: "",
             avatar: "",
             uid: "",
             sendingMessage: false,
             chatMessage: "",
             loggingOut: false,
             groupMessages: [],
-            loadingMessages: false
-        };
+           loadingMessages: false
+        } ) ,
+
+    mounted(){
+        this.messageSent()
     },
 
     created() {
@@ -123,8 +118,43 @@ export default {
     },
 
     methods: {
+
+
+        scrollToBottom() {
+            var objDiv = document.getElementById("msg-page");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        },
+
+        messageSent() {
+            this.loadingMessages = true
+            var listenerID = "20617324ff1b1c0";
+
+            const messagesRequest = new CometChat.MessagesRequestBuilder()
+                .setLimit(100)
+                .build()
+
+            messagesRequest.fetchPrevious().then(
+                messages => {
+                    console.log("Message list fetched:", messages);
+                    console.log("this.groupMessages", this.groupMessages)
+                    this.groupMessages = [
+                        ...this.groupMessages,
+                        ...messages
+                    ];
+                    this.loadingMessages = false
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    }) 
+                },
+                error => {
+                    console.log("Message fetching failed with error:", error);
+                }
+            );
+
+        },
         getLoggedInUser() {
-            CometChat.getLoggedInUser().then( user => {
+          
+            CometChat.getLoggedinUser().then( user => {
                 this.usernname = user.name;
                 this.avatar = user.avatar;
                 this.uid =user.uid;
@@ -140,9 +170,9 @@ export default {
 
         sendGroupMessage() {
             this.sendingMessage = true;
-            var receiverID = process.env.MIX_COMMETCHAT_GUID;
+            var receiverID = 'supergroup';
             var messageText = this.chatMessage;
-            var receiverType = CometChat.RECEIVER_TYPE.GROUP;
+            var receiverType = 'group';
 
             var textMessage = new CometChat.TextMessage (
                 receiverID,
@@ -156,7 +186,12 @@ export default {
                     this.chatMessage = "";
                     this.sendingMessage = false;
                     this.$nextTick(() => {
+                        this.messageSent()
+                        // this.messageSent = document.getElementById("msg-page");
+                        // this.messageSent.scrollTop = messageSent.scrollHeight;
+            
                         this.scrollToBottom()
+           
                     })
                 },
                 error => {
@@ -166,32 +201,9 @@ export default {
         }
     },
     
-    mounted() {
-        this.loadingMessages = true
-        var listenerID = "20617324ff1b1c0";
-
-        const messagesRequest = new CometChat.MessagesRequestBuilder()
-            .setLimit(100)
-            .build()
-
-        messagesRequest.fetchPrevious().then(
-            messages => {
-                console.log("Message list fetched:", messages);
-                console.log("this.groupMessages", this.groupMessages)
-                this.groupMessages = [
-                    ...this.groupMessages,
-                    ...messages
-                ];
-                this.loadingMessages = false
-                this.$$$nextTick(() => {
-                    this.scrollToBottom();
-                }) 
-            },
-            error => {
-                console.log("Message fetching failed with error:", error);
-            }
-        );
-    }
+    // mounted() {
+    //     this.messageSent();
+    // }
     
 }
 </script>

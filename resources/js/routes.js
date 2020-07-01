@@ -7,7 +7,7 @@ import Chat from "./../views/Chat";
 Vue.use(VueRouter);
 
 export default new VueRouter({
-    mode: 'history',
+    // mode: 'history',
     routes: [
         {
             path: '/',

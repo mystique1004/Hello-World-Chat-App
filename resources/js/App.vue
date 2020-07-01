@@ -28,7 +28,7 @@ export default {
                     console.log("Initialization failed with error:", error);
                 }
             );
-    }
+        }
     }
 }
 

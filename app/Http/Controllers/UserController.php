@@ -61,7 +61,7 @@ class UserController extends Controller
      $token = $request->get('token');
 
      User::where('username', $username)->update([
-         'autToken' => $token
+         'authToken' => $token
      ]);
  }
 }
