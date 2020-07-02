@@ -20,3 +20,4 @@ Route::post('/register', 'UserController@register')->middleware('guest');
 Route::post('/chat', 'UserController@chat')->middleware('guest');
 Route::post('/login', 'UserController@login')->middleware('guest');
 Route::post('/update/token', 'UserController@updateToken');
+Route::get('/logout', 'Authenticate@logout');

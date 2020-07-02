@@ -18,7 +18,7 @@
 
                                 <div
                                     v-if="loadingMessages"
-                                    class="loading-messages-container">
+                                    class="loading-messages-container" id="msg-load">
                                 
                                     <spinner :size="100"/>
                                     <span class="loading-text">     Loading Messages </span>
@@ -111,7 +111,10 @@ export default {
 
     mounted(){
         this.messageSent()
+        
     },
+    
+   
 
     created() {
         this.getLoggedInUser();
@@ -155,7 +158,8 @@ export default {
         getLoggedInUser() {
           
             CometChat.getLoggedinUser().then( user => {
-                this.usernname = user.name;
+                console.log(user);
+                this.username = user.name;
                 this.avatar = user.avatar;
                 this.uid =user.uid;
             },
@@ -186,12 +190,9 @@ export default {
                     this.chatMessage = "";
                     this.sendingMessage = false;
                     this.$nextTick(() => {
-                        this.messageSent()
-                        // this.messageSent = document.getElementById("msg-page");
-                        // this.messageSent.scrollTop = messageSent.scrollHeight;
-            
-                        this.scrollToBottom()
-           
+                    this.groupMessages.push(message) 
+                    this.scrollToBottom()  
+                                
                     })
                 },
                 error => {
@@ -201,9 +202,7 @@ export default {
         }
     },
     
-    // mounted() {
-    //     this.messageSent();
-    // }
+   
     
 }
 </script>

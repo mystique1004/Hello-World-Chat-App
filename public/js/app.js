@@ -1924,6 +1924,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["name", "avatar"]
 });
@@ -2136,7 +2139,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var _this2 = this;
 
       _cometchat_pro_chat__WEBPACK_IMPORTED_MODULE_0__["CometChat"].getLoggedinUser().then(function (user) {
-        _this2.usernname = user.name;
+        console.log(user);
+        _this2.username = user.name;
         _this2.avatar = user.avatar;
         _this2.uid = user.uid;
       }, function (error) {
@@ -2161,9 +2165,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         _this3.sendingMessage = false;
 
         _this3.$nextTick(function () {
-          _this3.messageSent(); // this.messageSent = document.getElementById("msg-page");
-          // this.messageSent.scrollTop = messageSent.scrollHeight;
-
+          _this3.groupMessages.push(message);
 
           _this3.scrollToBottom();
         });
@@ -2171,10 +2173,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         console.log("Message sending failed with error:", error);
       });
     }
-  } // mounted() {
-  //     this.messageSent();
-  // }
-
+  }
 });
 
 /***/ }),
@@ -39529,11 +39528,13 @@ var render = function() {
           _vm._v("Welcome "),
           _c("b", [_vm._v(_vm._s(_vm.name))])
         ]),
-        _vm._v(" \n            "),
-        _c("img", {
-          staticClass: "avatar",
-          attrs: { src: _vm.avatar, alt: "User avatar" }
-        })
+        _vm._v(" \n           "),
+        _c("li", { staticClass: "dropdown" }, [
+          _c("img", {
+            staticClass: "avatar",
+            attrs: { src: _vm.avatar, alt: "User avatar" }
+          })
+        ])
       ])
     ])
   ])
@@ -39662,7 +39663,10 @@ var render = function() {
                     _vm.loadingMessages
                       ? _c(
                           "div",
-                          { staticClass: "loading-messages-container" },
+                          {
+                            staticClass: "loading-messages-container",
+                            attrs: { id: "msg-load" }
+                          },
                           [
                             _c("spinner", { attrs: { size: 100 } }),
                             _vm._v(" "),
